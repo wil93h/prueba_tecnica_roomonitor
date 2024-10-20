@@ -25,7 +25,6 @@ export class UsersService {
       const userRegister = new this.userModel(user);
       return userRegister.save();
     } catch (error) {
-      console.log("🚀 ~ UsersController ~ (error.code :", error.code )
       if (error.name === 'MongoServerError' && error.code === 11000) {
         throw new ConflictException('Email is already registered');
       }
