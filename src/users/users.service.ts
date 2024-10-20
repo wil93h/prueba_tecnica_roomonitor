@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './user.schema';
 import { Model } from 'mongoose';
@@ -21,7 +21,15 @@ export class UsersService {
     return this.userModel.findOne({ email }).exec();
   }
   async register(user:CreateUserDto) {
-    const userRegister = new this.userModel(user);
-    return userRegister.save();
+    try{
+      const userRegister = new this.userModel(user);
+      return userRegister.save();
+    } catch (error) {
+      console.log("🚀 ~ UsersController ~ (error.code :", error.code )
+      if (error.name === 'MongoServerError' && error.code === 11000) {
+        throw new ConflictException('Email is already registered');
+      }
+      throw new InternalServerErrorException('Something went wrong');
+    }
   }
 }
